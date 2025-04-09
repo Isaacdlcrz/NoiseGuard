@@ -235,7 +235,7 @@ const App = () => {
                 {!selectedFile ? (
                     <h1 style={{ color: '#777', textAlign: 'center', marginTop: '20%' }}>Selecciona una medición para ver detalles</h1>
                 ) : (
-                    <h1 style={{ color: '#333', marginBottom: '1rem' }}>{`Medición: ${selectedFile}`}</h1>
+                    <h1 style={{ color: '#e6e6e6', marginBottom: '1rem' }}>{`Medición: ${selectedFile}`}</h1>
                 )}
 
                 {selectedFile && (
