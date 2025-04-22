@@ -28,3 +28,8 @@
 .custom-textfield .MuiInputLabel-root.Mui-focused {
     color: rgb(25, 118, 210) !important;
 }
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}

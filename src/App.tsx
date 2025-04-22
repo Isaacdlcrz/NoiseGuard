@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -16,9 +17,11 @@ const API_BASE = 'http://localhost:8080/api/samples';
 
 const App = () => {
     const [currentMeasurement, setCurrentMeasurement] = useState<number[]>([]);
+    const [currentTimestamp, setCurrentTimestamp] = useState<number | null>(null);
     const [measurementNames, setMeasurementNames] = useState<string[]>([]);
     const [selectedFile, setSelectedFile] = useState<string | null>(null);
     const [newFilename, setNewFilename] = useState<string>('');
+    const [sampleCount, setSampleCount] = useState<number>(1);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [editingValue, setEditingValue] = useState<string>('');
     const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
@@ -49,6 +52,7 @@ const App = () => {
                 const dataResponse = await fetch(`${API_BASE}?filename=${encodeURIComponent(selectedFile)}`);
                 const dataJson = await dataResponse.json();
                 setCurrentMeasurement(dataJson.data);
+                setCurrentTimestamp(dataJson.timestamp);
             } catch (error) {
                 console.error('Error fetching measurement data:', error);
             }
@@ -60,7 +64,7 @@ const App = () => {
     const handleCreateSample = async () => {
         if (!newFilename.trim()) return;
         try {
-            const response = await fetch(`${API_BASE}?filename=${encodeURIComponent(newFilename)}&times=5`, {
+            const response = await fetch(`${API_BASE}?filename=${encodeURIComponent(newFilename)}&times=${sampleCount}`, {
                 method: 'POST'
             });
             const result = await response.json();
@@ -144,6 +148,13 @@ const App = () => {
         }
     };
 
+    const getStdDev = (arr: number[]) => {
+        const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+        const squareDiffs = arr.map(value => Math.pow(value - avg, 2));
+        const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / arr.length;
+        return Math.sqrt(avgSquareDiff);
+    };
+
     return (
         <Box sx={{
             display: 'flex',
@@ -163,6 +174,23 @@ const App = () => {
                     placeholder="Escribe el nombre de la medición"
                     value={newFilename}
                     onChange={(e) => setNewFilename(e.target.value)}
+                    size="small"
+                    sx={{ mb: 1, width: '100%' }}
+                />
+                <br/>
+                <br/>
+                <TextField
+                    label="Cantidad de muestras"
+                    type="number"
+                    className="custom-textfield"
+                    slotProps={{
+                        input: {
+                            min: 1,
+                            max: 50,
+                        }
+                    }}
+                    value={sampleCount}
+                    onChange={(e) => setSampleCount(Math.max(1, Math.min(50, Number(e.target.value))))}
                     size="small"
                     sx={{ mb: 1, width: '100%' }}
                 />
@@ -187,12 +215,16 @@ const App = () => {
                                         slotProps={{ inputLabel: { shrink: true } }}
                                         placeholder="Nuevo nombre"
                                     />
-                                    <IconButton onClick={(e) => { e.stopPropagation(); handleUpdateSample(index); }}>
-                                        <CheckIcon sx={{ color: 'white' }} />
-                                    </IconButton>
-                                    <IconButton onClick={(e) => { e.stopPropagation(); setEditingIndex(null); setConfirmDeleteIndex(null); }}>
-                                        <CloseIcon sx={{ color: 'white' }} />
-                                    </IconButton>
+                                    <Tooltip title="Guardar cambios">
+                                        <IconButton onClick={(e) => { e.stopPropagation(); handleUpdateSample(index); }}>
+                                            <CheckIcon sx={{ color: 'white' }} />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Cancelar edición">
+                                        <IconButton onClick={(e) => { e.stopPropagation(); setEditingIndex(null); setConfirmDeleteIndex(null); }}>
+                                            <CloseIcon sx={{ color: 'white' }} />
+                                        </IconButton>
+                                    </Tooltip>
                                 </>
                             ) : (
                                 <>
@@ -200,21 +232,29 @@ const App = () => {
                                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                         {confirmDeleteIndex === index ? (
                                             <>
-                                                <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteSample(index); }}>
-                                                    <CheckIcon fontSize="small" sx={{ color: 'white' }} />
-                                                </IconButton>
-                                                <IconButton size="small" onClick={(e) => { e.stopPropagation(); setConfirmDeleteIndex(null); }}>
-                                                    <CloseIcon fontSize="small" sx={{ color: 'white' }} />
-                                                </IconButton>
+                                                <Tooltip title="Confirmar eliminación">
+                                                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteSample(index); }}>
+                                                        <CheckIcon fontSize="small" sx={{ color: 'white' }} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Cancelar eliminación">
+                                                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); setConfirmDeleteIndex(null); }}>
+                                                        <CloseIcon fontSize="small" sx={{ color: 'white' }} />
+                                                    </IconButton>
+                                                </Tooltip>
                                             </>
                                         ) : (
                                             <>
-                                                <IconButton size="small" onClick={(e) => { e.stopPropagation(); setEditingIndex(index); setEditingValue(name); setConfirmDeleteIndex(null); }}>
-                                                    <EditIcon fontSize="small" sx={{ color: 'white' }} />
-                                                </IconButton>
-                                                <IconButton size="small" onClick={(e) => { e.stopPropagation(); setConfirmDeleteIndex(index); setEditingIndex(null); }}>
-                                                    <DeleteIcon fontSize="small" sx={{ color: 'white' }} />
-                                                </IconButton>
+                                                <Tooltip title="Editar nombre">
+                                                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); setEditingIndex(index); setEditingValue(name); setConfirmDeleteIndex(null); }}>
+                                                        <EditIcon fontSize="small" sx={{ color: 'white' }} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Eliminar medición">
+                                                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); setConfirmDeleteIndex(index); setEditingIndex(null); }}>
+                                                        <DeleteIcon fontSize="small" sx={{ color: 'white' }} />
+                                                    </IconButton>
+                                                </Tooltip>
                                             </>
                                         )}
                                     </span>
@@ -232,20 +272,48 @@ const App = () => {
                 borderLeft: 1,
                 borderColor: 'lightgray'
             }}>
-                {!selectedFile ? (
-                    <h1 style={{ color: '#777', textAlign: 'center', marginTop: '20%' }}>Selecciona una medición para ver detalles</h1>
-                ) : (
-                    <h1 style={{ color: '#e6e6e6', marginBottom: '1rem' }}>{`Medición: ${selectedFile}`}</h1>
-                )}
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                }}>
+                    {!selectedFile ? (
+                        <h1 style={{ color: '#777', textAlign: 'center', marginTop: '20%' }}>Selecciona una medición para ver detalles</h1>
+                    ) : (
+                        <h1 style={{ color: '#e6e6e6', marginBottom: '1rem' }}>{`Medición: ${selectedFile}`}</h1>
+                    )}
+
+                    {selectedFile && currentMeasurement.length > 0 && (
+                        <Box sx={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: 2,
+                            mb: 2,
+                            p: 2,
+                            backgroundColor: 'rgb(50,50,50)',
+                            borderRadius: 1,
+                            boxShadow: 1,
+                            maxWidth: '500px'
+                        }}>
+                            <div><strong>Máximo:</strong> {Math.max(...currentMeasurement)}</div>
+                            <div><strong>Mínimo:</strong> {Math.min(...currentMeasurement)}</div>
+                            <div><strong>Promedio:</strong> {(currentMeasurement.reduce((a, b) => a + b, 0) / currentMeasurement.length).toFixed(2)}</div>
+                            <div><strong>Desviación estándar:</strong> {getStdDev(currentMeasurement).toFixed(2)}</div>
+                        </Box>
+                    )}
+                </Box>
+
 
                 {selectedFile && (
                     <>
-                        <div>
-                            {currentMeasurement.map((value, index) => (
-                                <span key={index}>{value} ,</span>
-                            ))}
-                        </div>
-                        <BarChart dataValues={currentMeasurement} />
+                        <Box sx={{ flexGrow: 1, height: '75vh', minHeight: '300px' }}>
+                            <BarChart dataValues={currentMeasurement} />
+                        </Box>
+                        {currentTimestamp && (
+                            <p style={{ color: '#888', textAlign: 'center', marginTop: '1rem' }}>
+                                Fecha de la medición: {new Date(currentTimestamp).toLocaleString()}
+                            </p>
+                        )}
+
                     </>
                 )}
             </Box>

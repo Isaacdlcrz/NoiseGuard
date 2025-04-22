@@ -2,44 +2,45 @@ import React from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
-// Register the necessary chart components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// TypeScript interface for the props
 interface BarChartProps {
-    dataValues: number[]; // Array of numeric values
+    dataValues: number[];
 }
 
 const BarChart: React.FC<BarChartProps> = ({ dataValues }) => {
-    // Chart.js data configuration
     const data = {
-        labels: dataValues.map((value) => value.toString()), // Convert the numbers to strings for the X-axis
+        labels: dataValues.map((value) => value.toString()),
         datasets: [
             {
                 label: 'Value',
-                data: dataValues, // Use the array as Y-axis values
-                backgroundColor: 'rgba(75, 192, 192, 0.5)', // Bar color
-                borderColor: 'rgba(75, 192, 192, 1)', // Border color
-                borderWidth: 1, // Border width for the bars
+                data: dataValues,
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
             },
         ],
     };
 
-    // Chart.js options configuration
     const options = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-            legend: { display: false }, // Hide the legend
+            legend: { display: false },
         },
         scales: {
             y: {
-                beginAtZero: true, // Y-axis starts at 0
-                suggestedMax: Math.max(...dataValues) + 10, // Adjust max value for better display
+                beginAtZero: true,
+                suggestedMax: Math.max(...dataValues) + 10,
             },
         },
     };
 
-    return <Bar data={data} options={options} />;
+    return (
+        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+            <Bar data={data} options={options} />
+        </div>
+    );
 };
 
 export default BarChart;
