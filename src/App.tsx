@@ -294,10 +294,10 @@ const App = () => {
                             boxShadow: 1,
                             maxWidth: '500px'
                         }}>
-                            <div><strong>Máximo:</strong> {Math.max(...currentMeasurement)}</div>
-                            <div><strong>Mínimo:</strong> {Math.min(...currentMeasurement)}</div>
-                            <div><strong>Promedio:</strong> {(currentMeasurement.reduce((a, b) => a + b, 0) / currentMeasurement.length).toFixed(2)}</div>
-                            <div><strong>Desviación estándar:</strong> {getStdDev(currentMeasurement).toFixed(2)}</div>
+                            <div><strong>Máximo:</strong> {Math.max(...currentMeasurement)} dB</div>
+                            <div><strong>Mínimo:</strong> {Math.min(...currentMeasurement)} dB</div>
+                            <div><strong>Promedio:</strong> {(currentMeasurement.reduce((a, b) => a + b, 0) / currentMeasurement.length).toFixed(2)} dB</div>
+                            <div><strong>Desviación estándar:</strong> {getStdDev(currentMeasurement).toFixed(2)} dB</div>
                         </Box>
                     )}
                 </Box>

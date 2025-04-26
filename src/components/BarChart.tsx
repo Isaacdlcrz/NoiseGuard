@@ -10,7 +10,7 @@ interface BarChartProps {
 
 const BarChart: React.FC<BarChartProps> = ({ dataValues }) => {
     const data = {
-        labels: dataValues.map((value) => value.toString()),
+        labels: dataValues.map((value) => `${value.toFixed(2)} dB`),
         datasets: [
             {
                 label: 'Value',
@@ -31,7 +31,12 @@ const BarChart: React.FC<BarChartProps> = ({ dataValues }) => {
         scales: {
             y: {
                 beginAtZero: true,
-                suggestedMax: Math.max(...dataValues) + 10,
+                suggestedMax: 0,
+                suggestedMin: Math.max(...dataValues) + 10,
+                reverse: true,
+                ticks: {
+                    callback: (value: number) => `${value} dB`
+                }
             },
         },
     };
