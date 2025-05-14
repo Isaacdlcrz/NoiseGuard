@@ -1,8 +1,8 @@
 import React from 'react';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+import {Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement} from 'chart.js';
+import { Scatter } from 'react-chartjs-2';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend);
 
 interface BarChartProps {
     dataValues: number[];
@@ -14,10 +14,10 @@ const BarChart: React.FC<BarChartProps> = ({ dataValues }) => {
         datasets: [
             {
                 label: 'Value',
-                data: dataValues,
+                data: dataValues.map((value, index) => ({ x: index, y: value })),
                 backgroundColor: 'rgba(75, 192, 192, 0.5)',
                 borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1,
+                pointRadius: 5,
             },
         ],
     };
@@ -29,6 +29,12 @@ const BarChart: React.FC<BarChartProps> = ({ dataValues }) => {
             legend: { display: false },
         },
         scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Index',
+                },
+            },
             y: {
                 beginAtZero: true,
                 suggestedMax: 0,
@@ -43,7 +49,7 @@ const BarChart: React.FC<BarChartProps> = ({ dataValues }) => {
 
     return (
         <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-            <Bar data={data} options={options} />
+            <Scatter data={data} options={options} />
         </div>
     );
 };
