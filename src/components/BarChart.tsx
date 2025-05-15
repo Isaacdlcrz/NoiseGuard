@@ -37,9 +37,8 @@ const BarChart: React.FC<BarChartProps> = ({ dataValues }) => {
             },
             y: {
                 beginAtZero: true,
-                suggestedMax: 0,
-                suggestedMin: Math.max(...dataValues) + 10,
-                reverse: true,
+                suggestedMax: Math.max(...dataValues) + 10,
+                suggestedMin: 0,
                 ticks: {
                     callback: (value: number) => `${value} dB`
                 }
